@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ProductInventoryAPI.Models;
 using ProductInventoryAPI.Services;
+using Microsoft.Extensions.Logging;
 
 namespace ProductInventoryAPI.Controllers
 {
@@ -11,10 +12,12 @@ namespace ProductInventoryAPI.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(IProductService productService)
+        public ProductsController(IProductService productService, ILogger<ProductsController> logger)
         {
             _productService = productService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -25,7 +28,7 @@ namespace ProductInventoryAPI.Controllers
                 var products = await _productService.GetAllProductsAsync();
                 return Ok(products);
             }
-            catch (ApplicationException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while getting all products");
                 return StatusCode(500, "An error occurred while processing your request. Please try again later.");
@@ -35,19 +38,35 @@ namespace ProductInventoryAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _productService.GetProductByIdAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _productService.GetProductByIdAsync(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return Ok(product);
             }
-            return Ok(product);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting product with ID: {ProductId}", id);
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<Product>> CreateProduct(Product product)
         {
-            var createdProduct = await _productService.CreateProductAsync(product);
-            return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductID }, createdProduct);
+            try
+            {
+                var createdProduct = await _productService.CreateProductAsync(product);
+                return CreatedAtAction(nameof(GetProduct), new { id = createdProduct.ProductID }, createdProduct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while creating a new product: {@Product}", product);
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            }
         }
 
         [HttpPut("{id}")]
@@ -58,25 +77,39 @@ namespace ProductInventoryAPI.Controllers
                 return BadRequest();
             }
 
-            var updated = await _productService.UpdateProductAsync(product);
-            if (!updated)
+            try
             {
-                return NotFound();
+                var updated = await _productService.UpdateProductAsync(product);
+                if (!updated)
+                {
+                    return NotFound();
+                }
+                return NoContent();
             }
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating product: {@Product}", product);
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var deleted = await _productService.DeleteProductAsync(id);
-            if (!deleted)
+            try
             {
-                return NotFound();
+                var deleted = await _productService.DeleteProductAsync(id);
+                if (!deleted)
+                {
+                    return NotFound();
+                }
+                return NoContent();
             }
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while deleting product with ID: {ProductId}", id);
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            }
         }
     }
 }
