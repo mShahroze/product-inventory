@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const ProductList = ({ products, onProductUpdate }) => {
+const ProductList = ({ products, onProductUpdate, showToast }) => {
   const handleDelete = async (id) => {
     if (
       window.confirm('Are you sure you want to delete this product?')
@@ -13,6 +13,7 @@ const ProductList = ({ products, onProductUpdate }) => {
         if (!response.ok) {
           throw new Error('Failed to delete product');
         }
+        showToast('Product deleted successfully');
         onProductUpdate();
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -21,7 +22,7 @@ const ProductList = ({ products, onProductUpdate }) => {
   };
 
   return (
-    <div>
+    <div className="product-list">
       <h2>Product List</h2>
       <table>
         <thead>
@@ -35,16 +36,24 @@ const ProductList = ({ products, onProductUpdate }) => {
         <tbody>
           {products.map((product) => (
             <tr key={product.productID}>
-              <td>{product.productName}</td>
-              <td>${product.price.toFixed(2)}</td>
-              <td>{product.quantity}</td>
-              <td>
-                <Link to={`/edit/${product.productID}`}>Edit</Link>
-                <button
-                  onClick={() => handleDelete(product.productID)}
-                >
-                  Delete
-                </button>
+              <td data-label="Product Name">{product.productName}</td>
+              <td data-label="Price">${product.price.toFixed(2)}</td>
+              <td data-label="Quantity">{product.quantity}</td>
+              <td data-label="Actions">
+                <div className="actions">
+                  <Link
+                    to={`/edit/${product.productID}`}
+                    className="button"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => handleDelete(product.productID)}
+                    className="delete-button"
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
