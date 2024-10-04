@@ -25,7 +25,9 @@ namespace ProductInventoryAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Attempting to retrieve all products");
                 var products = await _productService.GetAllProductsAsync();
+                _logger.LogInformation("Successfully retrieved {Count} products", products.Count());
                 return Ok(products);
             }
             catch (Exception ex)
@@ -33,6 +35,12 @@ namespace ProductInventoryAPI.Controllers
                 _logger.LogError(ex, "Error occurred while getting all products");
                 return StatusCode(500, "An error occurred while processing your request. Please try again later.");
             }
+        }
+
+        [HttpGet("/")]
+        public ActionResult<string> Get()
+        {
+            return "Welcome to the Product Inventory API";
         }
 
         [HttpGet("{id}")]
