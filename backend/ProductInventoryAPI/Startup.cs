@@ -19,9 +19,18 @@ namespace ProductInventoryAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowReactApp",
+                    builder => builder.WithOrigins("http://localhost:3000")
+                                      .AllowAnyMethod()
+                                      .AllowAnyHeader());
+            });
+
             services.AddScoped<IProductService, ProductService>();
-            services.AddLogging();
             services.AddSwaggerGen();
+            services.AddLogging();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -33,9 +42,15 @@ namespace ProductInventoryAPI
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ProductInventoryAPI v1"));
             }
 
-            app.UseHttpsRedirection();
+            // Comment out HTTPS redirection for now
+            // app.UseHttpsRedirection();
+
             app.UseRouting();
+
+            app.UseCors("AllowReactApp");
+
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
