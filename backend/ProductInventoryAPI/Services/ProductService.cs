@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using ProductInventoryAPI.Models;
@@ -13,11 +13,11 @@ namespace ProductInventoryAPI.Services
     {
         private readonly string _connectionString;
 
+
         public ProductService(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException(nameof(configuration));
         }
-
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
             using (var connection = new SqlConnection(_connectionString))
