@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   BrowserRouter as Router,
   Route,
@@ -8,6 +8,7 @@ import {
 import ProductList from './components/ProductList';
 import ProductForm from './components/ProductForm';
 import Toast from './components/Toast';
+import { getProducts } from './services/api';
 
 const App = () => {
   const [products, setProducts] = useState([]);
@@ -18,76 +19,69 @@ const App = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  useEffect(() => {
-    // Fetch products from API
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      const response = await fetch('/api/products');
-      if (!response.ok) {
-        throw new Error('Failed to fetch products');
-      }
-      const data = await response.json();
+      const data = await getProducts();
       setProducts(data);
     } catch (error) {
       console.error('Error fetching products:', error);
+      showToast('Failed to fetch products', 'error');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   return (
     <>
       <Router>
         <div className="container">
-          <div>
-            <nav>
-              <ul>
-                <li>
-                  <Link to="/">Product List</Link>
-                </li>
-                <li>
-                  <Link to="/add">Add Product</Link>
-                </li>
-              </ul>
-            </nav>
+          <nav>
+            <ul>
+              <li>
+                <Link to="/">Product List</Link>
+              </li>
+              <li>
+                <Link to="/add">Add Product</Link>
+              </li>
+            </ul>
+          </nav>
 
-            <Routes>
-              <Route
-                exact
-                path="/"
-                element={
-                  <ProductList
-                    products={products}
-                    onProductUpdate={fetchProducts}
-                    showToast={showToast}
-                  />
-                }
-              />
-              <Route
-                path="/add"
-                element={
-                  <ProductForm
-                    onProductAdded={() => {
-                      fetchProducts();
-                      showToast('Product added successfully');
-                    }}
-                  />
-                }
-              />
-              <Route
-                path="/edit/:id"
-                element={
-                  <ProductForm
-                    onProductUpdated={() => {
-                      fetchProducts();
-                      showToast('Product updated successfully');
-                    }}
-                  />
-                }
-              />
-            </Routes>
-          </div>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ProductList
+                  products={products}
+                  onProductUpdate={fetchProducts}
+                  showToast={showToast}
+                />
+              }
+            />
+            <Route
+              path="/add"
+              element={
+                <ProductForm
+                  onProductAdded={() => {
+                    fetchProducts();
+                    showToast('Product added successfully');
+                  }}
+                />
+              }
+            />
+            <Route
+              path="/edit/:id"
+              element={
+                <ProductForm
+                  onProductUpdated={() => {
+                    fetchProducts();
+                    showToast('Product updated successfully');
+                  }}
+                />
+              }
+            />
+          </Routes>
         </div>
       </Router>
       {toast && <Toast message={toast.message} type={toast.type} />}

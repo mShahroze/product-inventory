@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  getProduct,
+  createProduct,
+  updateProduct,
+} from '../services/api';
 
 const ProductForm = ({ onProductAdded, onProductUpdated }) => {
   const [product, setProduct] = useState({
@@ -19,11 +24,7 @@ const ProductForm = ({ onProductAdded, onProductUpdated }) => {
 
   const fetchProduct = async (productId) => {
     try {
-      const response = await fetch(`/api/products/${productId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch product');
-      }
-      const data = await response.json();
+      const data = await getProduct(productId);
       setProduct(data);
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -51,27 +52,15 @@ const ProductForm = ({ onProductAdded, onProductUpdated }) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const url = id ? `/api/products/${id}` : '/api/products';
-    const method = id ? 'PUT' : 'POST';
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save product');
-      }
-
       if (id) {
+        await updateProduct(id, product);
         onProductUpdated();
       } else {
+        await createProduct(product);
         onProductAdded();
       }
-
-      navigate.push('/');
+      navigate('/');
     } catch (error) {
       console.error('Error saving product:', error);
     }

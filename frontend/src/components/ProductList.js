@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { deleteProduct } from '../services/api';
 
 const ProductList = ({ products, onProductUpdate, showToast }) => {
   const handleDelete = async (id) => {
@@ -7,16 +8,12 @@ const ProductList = ({ products, onProductUpdate, showToast }) => {
       window.confirm('Are you sure you want to delete this product?')
     ) {
       try {
-        const response = await fetch(`/api/products/${id}`, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error('Failed to delete product');
-        }
+        await deleteProduct(id);
         showToast('Product deleted successfully');
         onProductUpdate();
       } catch (error) {
         console.error('Error deleting product:', error);
+        showToast('Failed to delete product', 'error');
       }
     }
   };
