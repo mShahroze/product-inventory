@@ -20,6 +20,7 @@ namespace ProductInventoryAPI
         {
             services.AddControllers();
             services.AddScoped<IProductService, ProductService>();
+            services.AddLogging();
             services.AddSwaggerGen();
         }
 

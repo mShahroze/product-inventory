@@ -20,8 +20,16 @@ namespace ProductInventoryAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
-            var products = await _productService.GetAllProductsAsync();
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetAllProductsAsync();
+                return Ok(products);
+            }
+            catch (ApplicationException ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting all products");
+                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+            }
         }
 
         [HttpGet("{id}")]
