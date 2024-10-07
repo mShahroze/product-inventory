@@ -5,7 +5,10 @@ const handleResponse = async (response) => {
     const error = await response.text();
     throw new Error(error || 'Something went wrong');
   }
-  return response.json();
+  if (response.status !== 204) {
+    return response.json();
+  }
+  return null;
 };
 
 const api = {

@@ -62,7 +62,8 @@ const ProductForm = ({ onProductAdded, onProductUpdated }) => {
       }
       navigate('/');
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('Error saving product:', error.message);
+      // You might want to show this error to the user
     }
   };
 
