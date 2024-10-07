@@ -92,12 +92,12 @@ namespace ProductInventoryAPI.Controllers
                 {
                     return NotFound();
                 }
-                return NoContent();
+                return Ok(new { message = "Product updated successfully" });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while updating product: {@Product}", product);
-                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+                return StatusCode(500, new { message = "An error occurred while processing your request." });
             }
         }
 
@@ -111,12 +111,12 @@ namespace ProductInventoryAPI.Controllers
                 {
                     return NotFound();
                 }
-                return NoContent();
+                return Ok(new { message = "Product deleted successfully" });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while deleting product with ID: {ProductId}", id);
-                return StatusCode(500, "An error occurred while processing your request. Please try again later.");
+                return StatusCode(500, new { message = "An error occurred while processing your request." });
             }
         }
     }
