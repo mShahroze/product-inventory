@@ -12,7 +12,7 @@ const ProductList = ({ products, onProductUpdate, showToast }) => {
         showToast('Product deleted successfully');
         onProductUpdate();
       } catch (error) {
-        console.error('Error deleting product:', error);
+        console.error('Error deleting product:', error.message);
         showToast('Failed to delete product', 'error');
       }
     }
